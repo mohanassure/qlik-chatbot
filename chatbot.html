@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Qlik Chatbot</title>
+    <script src="postmessage.js"></script>
+</head>
+<body>
+    <h2>Chatbot</h2>
+
+    <textarea id="chatInput" placeholder="Ask a question..." style="width:100%;height:60px;"></textarea>
+    <button onclick="sendToBackend()">Send</button>
+
+    <script>
+        let qlikFilters = [];
+
+        // Qlik posts filters here
+        window.addEventListener("message", (event) => {
+            if (event.data.type === "filters") {
+                qlikFilters = event.data.payload;
+                console.log("Received Filters:", qlikFilters);
+            }
+        });
+
+        async function buildFinalPrompt() {
+            let question = document.getElementById("chatInput").value.trim();
+
+            if (!qlikFilters || qlikFilters.length === 0) {
+                return question; // No filters
+            }
+
+            let parts = [];
+
+            qlikFilters.forEach((f) => {
+                if (f.values && f.values.length > 0) {
+                    parts.push(`${f.field} = ${f.values.join(", ")}`);
+                }
+            });
+
+            if (parts.length === 0) return question;
+
+            return `${question} [ ${parts.join(" , ")} ]`;
+        }
+
+        async function sendToBackend() {
+            let finalPrompt = await buildFinalPrompt();
+            alert("Sending to chatbot: " + finalPrompt);
+
+            // TODO: Replace with real backend call
+            fetch("https://snowflakeqlikinterweb-emcfedetf5dpbra2.eastus-01.azurewebsites.net/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json"},
+                body: JSON.stringify({ question: finalPrompt })
+            });
+        }
+    </script>
+</body>
+</html>
