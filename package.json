@@ -1,0 +1,9 @@
+{
+  "name": "qlik-chatbot-integration",
+  "version": "1.0.0",
+  "description": "Static chatbot HTML for Qlik iframe",
+  "main": "index.html",
+  "scripts": {},
+  "author": "Mohan",
+  "license": "MIT"
+}
